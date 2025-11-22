@@ -57,6 +57,23 @@ struct HomeView: View {
 
                 Spacer()
 
+                // Speech Features Button
+                NavigationLink(destination: SpeechView()) {
+                    HStack {
+                        Image(systemName: "mic.fill")
+                        Text("Multilingual Speech")
+                            .fontWeight(.semibold)
+                    }
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(
+                        RoundedRectangle(cornerRadius: 10)
+                            .fill(Color.blue)
+                    )
+                }
+                .padding(.horizontal, 30)
+
                 // Sign Out Button
                 Button(action: {
                     authViewModel.signOut()

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <!-- Required for speech recognition (speech-to-text) -->
+    <key>NSMicrophoneUsageDescription</key>
+    <string>This app needs access to your microphone to convert speech to text in multiple languages.</string>
+
+    <!-- Required for speech recognition (speech-to-text) -->
+    <key>NSSpeechRecognitionUsageDescription</key>
+    <string>This app uses speech recognition to convert your speech into text in Myanmar, English, Thai, Korean, Japanese, German, and Chinese.</string>
+</dict>
+</plist>
