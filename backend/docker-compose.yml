@@ -1,0 +1,75 @@
+version: '3.8'
+
+services:
+  # FastAPI Backend
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: yoga-planner-api
+    ports:
+      - "8000:8000"
+    environment:
+      - API_HOST=0.0.0.0
+      - API_PORT=8000
+      - LOG_LEVEL=INFO
+    env_file:
+      - .env
+    volumes:
+      - ./:/app
+      - /app/__pycache__
+    restart: unless-stopped
+    networks:
+      - yoga-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Redis for caching (optional)
+  redis:
+    image: redis:7-alpine
+    container_name: yoga-planner-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    restart: unless-stopped
+    networks:
+      - yoga-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # PostgreSQL database (optional)
+  postgres:
+    image: postgres:15-alpine
+    container_name: yoga-planner-db
+    environment:
+      - POSTGRES_USER=yoga_user
+      - POSTGRES_PASSWORD=yoga_password
+      - POSTGRES_DB=yoga_planner
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    restart: unless-stopped
+    networks:
+      - yoga-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U yoga_user -d yoga_planner"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  redis-data:
+  postgres-data:
+
+networks:
+  yoga-network:
+    driver: bridge

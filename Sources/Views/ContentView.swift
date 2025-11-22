@@ -20,6 +20,25 @@ struct HomeView: View {
     @ObservedObject var authViewModel: AuthenticationViewModel
 
     var body: some View {
+        TabView {
+            YogaHomeView()
+                .tabItem {
+                    Label("Yoga", systemImage: "figure.mind.and.body")
+                }
+
+            ProfileView(user: user, authViewModel: authViewModel)
+                .tabItem {
+                    Label("Profile", systemImage: "person.circle")
+                }
+        }
+    }
+}
+
+struct ProfileView: View {
+    let user: User
+    @ObservedObject var authViewModel: AuthenticationViewModel
+
+    var body: some View {
         NavigationView {
             VStack(spacing: 20) {
                 Spacer()
