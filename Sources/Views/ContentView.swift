@@ -20,6 +20,39 @@ struct HomeView: View {
     @ObservedObject var authViewModel: AuthenticationViewModel
 
     var body: some View {
+        TabView {
+            DashboardView()
+                .tabItem {
+                    Label("Dashboard", systemImage: "house.fill")
+                }
+                .environmentObject(authViewModel)
+
+            YogaPlannerView()
+                .tabItem {
+                    Label("Yoga", systemImage: "figure.yoga")
+                }
+                .environmentObject(authViewModel)
+
+            DietPlannerView()
+                .tabItem {
+                    Label("Diet", systemImage: "fork.knife")
+                }
+                .environmentObject(authViewModel)
+
+            ProfileView(user: user, authViewModel: authViewModel)
+                .tabItem {
+                    Label("Profile", systemImage: "person.fill")
+                }
+        }
+        .accentColor(.purple)
+    }
+}
+
+struct ProfileView: View {
+    let user: User
+    @ObservedObject var authViewModel: AuthenticationViewModel
+
+    var body: some View {
         NavigationView {
             VStack(spacing: 20) {
                 Spacer()
