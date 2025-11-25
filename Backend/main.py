@@ -9,6 +9,7 @@ from contextlib import asynccontextmanager
 from Backend.config import settings
 from Backend.utils.database import init_db
 from Backend.routes import yoga_router, diet_router, analytics_router
+from Backend.routes.micronutrient_routes import router as micronutrient_router
 
 
 @asynccontextmanager
@@ -74,6 +75,7 @@ app.add_middleware(
 app.include_router(yoga_router)
 app.include_router(diet_router)
 app.include_router(analytics_router)
+app.include_router(micronutrient_router)
 
 
 @app.get("/")

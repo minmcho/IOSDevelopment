@@ -545,3 +545,166 @@ Return ONLY valid JSON."""
                 "recommendations": ["Continue consistent logging", "Focus on balanced meals"],
                 "achievements": [f"Logged {len(diet_logs)} days of meals"]
             }
+
+    async def analyze_micronutrients(
+        self,
+        user_id: str,
+        meal_data: List[Dict],
+        user_profile: Dict
+    ) -> Dict[str, Any]:
+        """
+        Analyze micronutrient intake using LLAMA 3.2
+
+        Provides detailed analysis of vitamins and minerals, identifies deficiencies,
+        and generates personalized recommendations.
+        """
+
+        if not meal_data:
+            return {
+                "summary": "No meal data available for micronutrient analysis.",
+                "deficiencies": [],
+                "recommendations": ["Start logging meals to track micronutrients"]
+            }
+
+        # Build context
+        age = user_profile.get("age", 30)
+        gender = user_profile.get("gender", "male")
+        goals = user_profile.get("goals", [])
+
+        prompt = f"""You are an expert nutritionist specializing in micronutrient analysis.
+
+Analyze the following meal data for micronutrient adequacy:
+
+User Profile:
+- Age: {age}
+- Gender: {gender}
+- Goals: {', '.join(goals)}
+
+Recent Meals: {json.dumps(meal_data[-14:], indent=2)}
+
+Provide a comprehensive micronutrient analysis in JSON format:
+{{
+  "vitamin_analysis": {{
+    "vitamin_a": {{"intake_mcg": 0, "rda_mcg": 900, "percentage": 0, "status": "adequate/deficient/excess"}},
+    "vitamin_c": {{"intake_mg": 0, "rda_mg": 90, "percentage": 0, "status": "adequate/deficient/excess"}},
+    "vitamin_d": {{"intake_mcg": 0, "rda_mcg": 15, "percentage": 0, "status": "adequate/deficient/excess"}},
+    "vitamin_e": {{"intake_mg": 0, "rda_mg": 15, "percentage": 0, "status": "adequate/deficient/excess"}},
+    "vitamin_k": {{"intake_mcg": 0, "rda_mcg": 120, "percentage": 0, "status": "adequate/deficient/excess"}},
+    "vitamin_b12": {{"intake_mcg": 0, "rda_mcg": 2.4, "percentage": 0, "status": "adequate/deficient/excess"}},
+    "folate": {{"intake_mcg": 0, "rda_mcg": 400, "percentage": 0, "status": "adequate/deficient/excess"}}
+  }},
+  "mineral_analysis": {{
+    "calcium": {{"intake_mg": 0, "rda_mg": 1000, "percentage": 0, "status": "adequate/deficient/excess"}},
+    "iron": {{"intake_mg": 0, "rda_mg": 8, "percentage": 0, "status": "adequate/deficient/excess"}},
+    "magnesium": {{"intake_mg": 0, "rda_mg": 420, "percentage": 0, "status": "adequate/deficient/excess"}},
+    "potassium": {{"intake_mg": 0, "rda_mg": 3400, "percentage": 0, "status": "adequate/deficient/excess"}},
+    "zinc": {{"intake_mg": 0, "rda_mg": 11, "percentage": 0, "status": "adequate/deficient/excess"}},
+    "selenium": {{"intake_mcg": 0, "rda_mcg": 55, "percentage": 0, "status": "adequate/deficient/excess"}}
+  }},
+  "deficiencies": [
+    {{
+      "nutrient": "Vitamin D",
+      "severity": "moderate",
+      "health_impacts": ["Weakened immune system", "Bone health issues"],
+      "food_sources": ["Fatty fish", "Fortified milk", "Egg yolks"],
+      "supplement_advice": "Consider 1000 IU daily supplement"
+    }}
+  ],
+  "recommendations": [
+    "Increase intake of leafy greens for iron and folate",
+    "Add fatty fish 2-3 times per week for vitamin D and omega-3s"
+  ],
+  "summary": "Overall micronutrient assessment summary"
+}}
+
+Adjust RDA values based on age and gender. Be specific and evidence-based.
+Return ONLY valid JSON."""
+
+        messages = [
+            {"role": "system", "content": "You are an expert nutritionist specializing in micronutrient analysis and deficiency detection."},
+            {"role": "user", "content": prompt}
+        ]
+
+        try:
+            response = await self._call_llama_api(messages, temperature=0.7, max_tokens=2000)
+
+            json_str = response.strip()
+            if json_str.startswith("```json"):
+                json_str = json_str.split("```json")[1].split("```")[0].strip()
+            elif json_str.startswith("```"):
+                json_str = json_str.split("```")[1].split("```")[0].strip()
+
+            analysis = json.loads(json_str)
+            return analysis
+        except (json.JSONDecodeError, Exception) as e:
+            print(f"Micronutrient analysis error: {e}")
+            return {
+                "summary": "Unable to complete detailed micronutrient analysis. Continue tracking meals for better insights.",
+                "deficiencies": [],
+                "recommendations": ["Eat a variety of colorful fruits and vegetables", "Include whole grains and lean proteins"]
+            }
+
+    def generate_micronutrient_data(self, recipe_name: str, ingredients: List[Dict]) -> Dict[str, Any]:
+        """
+        Generate estimated micronutrient data for a recipe
+
+        This is a simplified estimation. In production, integrate with a
+        comprehensive nutrition database API like USDA FoodData Central.
+        """
+
+        # Simplified micronutrient estimation based on common ingredient patterns
+        # In production, use actual nutrition database
+
+        micronutrients = {
+            "vitamins": {
+                "vitamin_a_mcg": 0,
+                "vitamin_c_mg": 0,
+                "vitamin_d_mcg": 0,
+                "vitamin_e_mg": 0,
+                "vitamin_k_mcg": 0,
+                "vitamin_b1_thiamin_mg": 0,
+                "vitamin_b2_riboflavin_mg": 0,
+                "vitamin_b3_niacin_mg": 0,
+                "vitamin_b6_mg": 0,
+                "vitamin_b9_folate_mcg": 0,
+                "vitamin_b12_mcg": 0
+            },
+            "minerals": {
+                "calcium_mg": 0,
+                "iron_mg": 0,
+                "magnesium_mg": 0,
+                "potassium_mg": 0,
+                "sodium_mg": 0,
+                "zinc_mg": 0,
+                "selenium_mcg": 0
+            }
+        }
+
+        # Simple heuristics for common ingredients
+        ingredient_text = " ".join([ing.get("item", "").lower() for ing in ingredients])
+
+        # Vitamins
+        if any(word in ingredient_text for word in ["carrot", "sweet potato", "spinach"]):
+            micronutrients["vitamins"]["vitamin_a_mcg"] = 500
+        if any(word in ingredient_text for word in ["orange", "strawberry", "bell pepper", "broccoli"]):
+            micronutrients["vitamins"]["vitamin_c_mg"] = 50
+        if any(word in ingredient_text for word in ["salmon", "tuna", "egg", "milk"]):
+            micronutrients["vitamins"]["vitamin_d_mcg"] = 5
+        if any(word in ingredient_text for word in ["leafy", "spinach", "kale"]):
+            micronutrients["vitamins"]["vitamin_k_mcg"] = 100
+        if any(word in ingredient_text for word in ["meat", "fish", "egg"]):
+            micronutrients["vitamins"]["vitamin_b12_mcg"] = 2
+
+        # Minerals
+        if any(word in ingredient_text for word in ["milk", "cheese", "yogurt", "tofu"]):
+            micronutrients["minerals"]["calcium_mg"] = 300
+        if any(word in ingredient_text for word in ["beef", "spinach", "lentil", "bean"]):
+            micronutrients["minerals"]["iron_mg"] = 3
+        if any(word in ingredient_text for word in ["nuts", "seed", "whole grain"]):
+            micronutrients["minerals"]["magnesium_mg"] = 100
+        if any(word in ingredient_text for word in ["banana", "potato", "avocado"]):
+            micronutrients["minerals"]["potassium_mg"] = 400
+        if any(word in ingredient_text for word in ["meat", "seafood", "nuts"]):
+            micronutrients["minerals"]["zinc_mg"] = 3
+
+        return micronutrients

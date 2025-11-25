@@ -134,6 +134,34 @@ class APIClient {
         )
     }
 
+    // MARK: - Micronutrient Endpoints
+
+    func getMicronutrientGoals(userId: String) async throws -> MicronutrientGoals {
+        return try await request(endpoint: "/api/micronutrients/goals/\(userId)")
+    }
+
+    func analyzeMicronutrients(
+        userId: String,
+        days: Int = 7,
+        includeAI: Bool = true
+    ) async throws -> MicronutrientAnalysis {
+        return try await request(
+            endpoint: "/api/micronutrients/analyze/\(userId)?days=\(days)&include_ai=\(includeAI)"
+        )
+    }
+
+    func getMicronutrientDeficiencies(userId: String, days: Int = 14) async throws -> [String: Any] {
+        return try await request(
+            endpoint: "/api/micronutrients/deficiencies/\(userId)?days=\(days)"
+        )
+    }
+
+    func getMicronutrientSummary(userId: String) async throws -> [String: Any] {
+        return try await request(
+            endpoint: "/api/micronutrients/summary/\(userId)"
+        )
+    }
+
     // MARK: - Analytics Endpoints
 
     func getDashboard(userId: String) async throws -> DashboardData {

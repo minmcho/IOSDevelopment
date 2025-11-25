@@ -37,6 +37,71 @@ enum MealType: String, Codable, CaseIterable {
     }
 }
 
+// MARK: - Micronutrients
+
+struct Vitamins: Codable {
+    let vitaminAMcg: Double?
+    let vitaminCMg: Double?
+    let vitaminDMcg: Double?
+    let vitaminEMg: Double?
+    let vitaminKMcg: Double?
+    let vitaminB1ThiaminMg: Double?
+    let vitaminB2RiboflavinMg: Double?
+    let vitaminB3NiacinMg: Double?
+    let vitaminB6Mg: Double?
+    let vitaminB9FolateMcg: Double?
+    let vitaminB12Mcg: Double?
+    let cholineMg: Double?
+
+    enum CodingKeys: String, CodingKey {
+        case vitaminAMcg = "vitamin_a_mcg"
+        case vitaminCMg = "vitamin_c_mg"
+        case vitaminDMcg = "vitamin_d_mcg"
+        case vitaminEMg = "vitamin_e_mg"
+        case vitaminKMcg = "vitamin_k_mcg"
+        case vitaminB1ThiaminMg = "vitamin_b1_thiamin_mg"
+        case vitaminB2RiboflavinMg = "vitamin_b2_riboflavin_mg"
+        case vitaminB3NiacinMg = "vitamin_b3_niacin_mg"
+        case vitaminB6Mg = "vitamin_b6_mg"
+        case vitaminB9FolateMcg = "vitamin_b9_folate_mcg"
+        case vitaminB12Mcg = "vitamin_b12_mcg"
+        case cholineMg = "choline_mg"
+    }
+}
+
+struct Minerals: Codable {
+    let calciumMg: Double?
+    let ironMg: Double?
+    let magnesiumMg: Double?
+    let phosphorusMg: Double?
+    let potassiumMg: Double?
+    let sodiumMg: Double?
+    let zincMg: Double?
+    let copperMg: Double?
+    let manganeseMg: Double?
+    let seleniumMcg: Double?
+    let iodineMcg: Double?
+
+    enum CodingKeys: String, CodingKey {
+        case calciumMg = "calcium_mg"
+        case ironMg = "iron_mg"
+        case magnesiumMg = "magnesium_mg"
+        case phosphorusMg = "phosphorus_mg"
+        case potassiumMg = "potassium_mg"
+        case sodiumMg = "sodium_mg"
+        case zincMg = "zinc_mg"
+        case copperMg = "copper_mg"
+        case manganeseMg = "manganese_mg"
+        case seleniumMcg = "selenium_mcg"
+        case iodineMcg = "iodine_mcg"
+    }
+}
+
+struct Micronutrients: Codable {
+    let vitamins: Vitamins
+    let minerals: Minerals
+}
+
 // MARK: - Nutritional Info
 
 struct NutritionalInfo: Codable {
@@ -47,16 +112,23 @@ struct NutritionalInfo: Codable {
     let fiberG: Double?
     let sugarG: Double?
     let sodiumMg: Double?
-    let vitamins: [String: String]?
+    let saturatedFatG: Double?
+    let transFatG: Double?
+    let cholesterolMg: Double?
+    let micronutrients: Micronutrients?
+    let vitamins: [String: String]?  // Legacy support
 
     enum CodingKeys: String, CodingKey {
-        case calories, vitamins
+        case calories, vitamins, micronutrients
         case proteinG = "protein_g"
         case carbsG = "carbs_g"
         case fatG = "fat_g"
         case fiberG = "fiber_g"
         case sugarG = "sugar_g"
         case sodiumMg = "sodium_mg"
+        case saturatedFatG = "saturated_fat_g"
+        case transFatG = "trans_fat_g"
+        case cholesterolMg = "cholesterol_mg"
     }
 
     var proteinPercentage: Double {
@@ -199,4 +271,123 @@ struct ShoppingListItem: Identifiable {
     let unit: String
     let category: String
     var isPurchased: Bool = false
+}
+
+// MARK: - Micronutrient Analysis
+
+struct MicronutrientGoals: Codable {
+    let userId: String
+    let age: Int
+    let gender: String
+
+    // Vitamin goals
+    let vitaminAMcg: Double
+    let vitaminCMg: Double
+    let vitaminDMcg: Double
+    let vitaminEMg: Double
+    let vitaminKMcg: Double
+    let vitaminB1Mg: Double
+    let vitaminB2Mg: Double
+    let vitaminB3Mg: Double
+    let vitaminB6Mg: Double
+    let vitaminB9Mcg: Double
+    let vitaminB12Mcg: Double
+
+    // Mineral goals
+    let calciumMg: Double
+    let ironMg: Double
+    let magnesiumMg: Double
+    let potassiumMg: Double
+    let sodiumMg: Double
+    let zincMg: Double
+    let seleniumMcg: Double
+
+    enum CodingKeys: String, CodingKey {
+        case age, gender
+        case userId = "user_id"
+        case vitaminAMcg = "vitamin_a_mcg"
+        case vitaminCMg = "vitamin_c_mg"
+        case vitaminDMcg = "vitamin_d_mcg"
+        case vitaminEMg = "vitamin_e_mg"
+        case vitaminKMcg = "vitamin_k_mcg"
+        case vitaminB1Mg = "vitamin_b1_mg"
+        case vitaminB2Mg = "vitamin_b2_mg"
+        case vitaminB3Mg = "vitamin_b3_mg"
+        case vitaminB6Mg = "vitamin_b6_mg"
+        case vitaminB9Mcg = "vitamin_b9_mcg"
+        case vitaminB12Mcg = "vitamin_b12_mcg"
+        case calciumMg = "calcium_mg"
+        case ironMg = "iron_mg"
+        case magnesiumMg = "magnesium_mg"
+        case potassiumMg = "potassium_mg"
+        case sodiumMg = "sodium_mg"
+        case zincMg = "zinc_mg"
+        case seleniumMcg = "selenium_mcg"
+    }
+}
+
+struct MicronutrientDeficiency: Codable, Identifiable {
+    var id: String { nutrientName }
+    let nutrientName: String
+    let currentIntake: Double
+    let recommendedIntake: Double
+    let deficitPercentage: Double
+    let healthImpacts: [String]
+    let foodSources: [String]
+    let severity: String
+
+    enum CodingKeys: String, CodingKey {
+        case severity
+        case nutrientName = "nutrient_name"
+        case currentIntake = "current_intake"
+        case recommendedIntake = "recommended_intake"
+        case deficitPercentage = "deficit_percentage"
+        case healthImpacts = "health_impacts"
+        case foodSources = "food_sources"
+    }
+
+    var severityColor: String {
+        switch severity {
+        case "high": return "red"
+        case "moderate": return "orange"
+        default: return "yellow"
+        }
+    }
+}
+
+struct MicronutrientAnalysis: Codable {
+    let userId: String
+    let period: String
+    let startDate: Date
+    let endDate: Date
+
+    let avgVitamins: Vitamins
+    let avgMinerals: Minerals
+    let goals: MicronutrientGoals
+
+    let deficiencies: [MicronutrientDeficiency]
+    let adequacies: [String]
+    let excesses: [String]
+
+    let aiRecommendations: String
+    let supplementSuggestions: [String]
+    let dietaryAdjustments: [String]
+
+    let vitaminCompletionPercentages: [String: Double]
+    let mineralCompletionPercentages: [String: Double]
+
+    enum CodingKeys: String, CodingKey {
+        case period, deficiencies, adequacies, excesses
+        case userId = "user_id"
+        case startDate = "start_date"
+        case endDate = "end_date"
+        case avgVitamins = "avg_vitamins"
+        case avgMinerals = "avg_minerals"
+        case goals
+        case aiRecommendations = "ai_recommendations"
+        case supplementSuggestions = "supplement_suggestions"
+        case dietaryAdjustments = "dietary_adjustments"
+        case vitaminCompletionPercentages = "vitamin_completion_percentages"
+        case mineralCompletionPercentages = "mineral_completion_percentages"
+    }
 }

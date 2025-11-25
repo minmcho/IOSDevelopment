@@ -39,6 +39,12 @@ struct HomeView: View {
                 }
                 .environmentObject(authViewModel)
 
+            MicronutrientView()
+                .tabItem {
+                    Label("Nutrients", systemImage: "pill.fill")
+                }
+                .environmentObject(authViewModel)
+
             ProfileView(user: user, authViewModel: authViewModel)
                 .tabItem {
                     Label("Profile", systemImage: "person.fill")

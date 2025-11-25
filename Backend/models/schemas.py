@@ -117,6 +117,48 @@ class YogaPlanResponse(BaseModel):
 
 
 # Diet Schemas
+
+# Micronutrient Models
+class Vitamins(BaseModel):
+    """Vitamin content in recommended daily values"""
+    vitamin_a_mcg: Optional[float] = None  # Micrograms
+    vitamin_c_mg: Optional[float] = None   # Milligrams
+    vitamin_d_mcg: Optional[float] = None
+    vitamin_e_mg: Optional[float] = None
+    vitamin_k_mcg: Optional[float] = None
+    vitamin_b1_thiamin_mg: Optional[float] = None
+    vitamin_b2_riboflavin_mg: Optional[float] = None
+    vitamin_b3_niacin_mg: Optional[float] = None
+    vitamin_b5_pantothenic_acid_mg: Optional[float] = None
+    vitamin_b6_mg: Optional[float] = None
+    vitamin_b7_biotin_mcg: Optional[float] = None
+    vitamin_b9_folate_mcg: Optional[float] = None
+    vitamin_b12_mcg: Optional[float] = None
+    choline_mg: Optional[float] = None
+
+
+class Minerals(BaseModel):
+    """Mineral content in recommended daily values"""
+    calcium_mg: Optional[float] = None
+    iron_mg: Optional[float] = None
+    magnesium_mg: Optional[float] = None
+    phosphorus_mg: Optional[float] = None
+    potassium_mg: Optional[float] = None
+    sodium_mg: Optional[float] = None
+    zinc_mg: Optional[float] = None
+    copper_mg: Optional[float] = None
+    manganese_mg: Optional[float] = None
+    selenium_mcg: Optional[float] = None
+    iodine_mcg: Optional[float] = None
+    chromium_mcg: Optional[float] = None
+
+
+class Micronutrients(BaseModel):
+    """Complete micronutrient profile"""
+    vitamins: Vitamins = Vitamins()
+    minerals: Minerals = Minerals()
+
+
 class NutritionalInfo(BaseModel):
     calories: float
     protein_g: float
@@ -125,6 +167,12 @@ class NutritionalInfo(BaseModel):
     fiber_g: Optional[float] = None
     sugar_g: Optional[float] = None
     sodium_mg: Optional[float] = None
+    saturated_fat_g: Optional[float] = None
+    trans_fat_g: Optional[float] = None
+    cholesterol_mg: Optional[float] = None
+    micronutrients: Optional[Micronutrients] = None
+
+    # Legacy field for backward compatibility
     vitamins: Dict[str, Any] = {}
 
 
@@ -225,3 +273,89 @@ class AnalyticsResponse(BaseModel):
     insights: List[str]
     trends: Dict[str, Any]
     ai_summary: str
+
+
+# Micronutrient Schemas
+class MicronutrientGoals(BaseModel):
+    """Daily micronutrient goals based on RDA (Recommended Daily Allowance)"""
+    user_id: str
+    age: int
+    gender: str
+
+    # Vitamin goals (customizable)
+    vitamin_a_mcg: float = 900  # Adult male RDA
+    vitamin_c_mg: float = 90
+    vitamin_d_mcg: float = 15
+    vitamin_e_mg: float = 15
+    vitamin_k_mcg: float = 120
+    vitamin_b1_mg: float = 1.2
+    vitamin_b2_mg: float = 1.3
+    vitamin_b3_mg: float = 16
+    vitamin_b5_mg: float = 5
+    vitamin_b6_mg: float = 1.7
+    vitamin_b7_mcg: float = 30
+    vitamin_b9_mcg: float = 400
+    vitamin_b12_mcg: float = 2.4
+    choline_mg: float = 550
+
+    # Mineral goals
+    calcium_mg: float = 1000
+    iron_mg: float = 8
+    magnesium_mg: float = 420
+    phosphorus_mg: float = 700
+    potassium_mg: float = 3400
+    sodium_mg: float = 2300  # Upper limit
+    zinc_mg: float = 11
+    copper_mg: float = 0.9
+    manganese_mg: float = 2.3
+    selenium_mcg: float = 55
+    iodine_mcg: float = 150
+    chromium_mcg: float = 35
+
+
+class MicronutrientDeficiency(BaseModel):
+    """Detected micronutrient deficiencies"""
+    nutrient_name: str
+    current_intake: float
+    recommended_intake: float
+    deficit_percentage: float
+    health_impacts: List[str]
+    food_sources: List[str]
+    severity: str  # low, moderate, high
+
+
+class MicronutrientAnalysis(BaseModel):
+    """Comprehensive micronutrient analysis"""
+    user_id: str
+    period: str
+    start_date: date
+    end_date: date
+
+    # Average daily intake
+    avg_vitamins: Vitamins
+    avg_minerals: Minerals
+
+    # Goals
+    goals: MicronutrientGoals
+
+    # Analysis results
+    deficiencies: List[MicronutrientDeficiency]
+    adequacies: List[str]  # Nutrients meeting goals
+    excesses: List[str]  # Nutrients exceeding safe upper limits
+
+    # AI recommendations
+    ai_recommendations: str
+    supplement_suggestions: List[str]
+    dietary_adjustments: List[str]
+
+    # Visual data for charts
+    vitamin_completion_percentages: Dict[str, float]
+    mineral_completion_percentages: Dict[str, float]
+
+
+class MicronutrientRequest(BaseModel):
+    """Request for micronutrient analysis"""
+    user_id: str
+    start_date: date
+    end_date: date
+    include_ai_analysis: bool = True
